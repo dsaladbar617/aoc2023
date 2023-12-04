@@ -60,7 +60,6 @@ const getNum = (arr) => {
     }
   })
   return indexes
-  // return arr.filter((item, lineIndex) => item === 0).map((item, index) => index )
 }
 
 const checkAdjacent = ( matrix: string[][]) => {
@@ -76,38 +75,51 @@ const checkAdjacent = ( matrix: string[][]) => {
 
   for (let i = 1; i < paddedMatrix.length - 1; i++) {
     let num = ''
-    let start = []
-    console.log(getNum(paddedMatrix[i]))
-    for (let j = 1; j < paddedMatrix[i].length - 1; j++) {
-      const adjacentSpaces = getAdjacentSpaces(i,j)
+    const numbersIndex = getNum(paddedMatrix[i])
+
+    const check = numbersIndex.map((item) => {
+      return item.map(elem => {
+        const adjacentSpaces = getAdjacentSpaces(i, elem)
+        return (Object.values(adjacentSpaces).includes(1))
+
+      })
+    })
 
 
-      if (adjacentSpaces.center === 0) {
-        start.push([i,j])
-        if (adjacentSpaces.right === 0) {
-          num += matrix[i - 1][j - 1]
-          numPaddedIndex.push([i, j])
-        }
-        else if (adjacentSpaces.right !== 0) {
-          // end.push([i,j])
-          if (start.length > 0 )end.push(start)
-          num += matrix[i - 1][j - 1]
-          numPaddedIndex.push([i, j])
-          if( Object.values(adjacentSpaces).includes(1) ) partNumArr.push(num)
-          numArr.push(num)
-        num = ''
-      }
+    // START HERE!!!!!!!!!!!!
+
+
+    const test = numbersIndex.map(item => item.map(elem => matrix[i-1][elem - 1]).join(''))
+    console.log(test)
+    console.log(check)
+    // for (let j = 1; j < paddedMatrix[i].length - 1; j++) {
+    //   const adjacentSpaces = getAdjacentSpaces(i,j)
+
+
+    //   if (adjacentSpaces.center === 0) {
+    //     start.push([i,j])
+    //     if (adjacentSpaces.right === 0) {
+    //       num += matrix[i - 1][j - 1]
+    //       numPaddedIndex.push([i, j])
+    //     }
+    //     else if (adjacentSpaces.right !== 0) {
+    //       // end.push([i,j])
+    //       if (start.length > 0 )end.push(start)
+    //       num += matrix[i - 1][j - 1]
+    //       numPaddedIndex.push([i, j])
+    //       if( Object.values(adjacentSpaces).includes(1) ) partNumArr.push(num)
+    //       numArr.push(num)
+    //     num = ''
+    //   }
       // if( adjacentSpaces.includes(1)) partNumArr.push(num)
       }
   }
-  // console.log(end)
-}
 
 // console.log(numArr)
 // console.log(partNumArr)
 // console.log(numPaddedIndex)
 // console.log(numArr.reduce((total, item) => total += +item, 0 ))
-}
+// }
 
 // fs.writeFileSync(path.join(__dirname, 'paddedMatrix.txt'), paddedMatrix.join('\n'))
 
