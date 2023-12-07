@@ -8,8 +8,6 @@ const lines = data.split("\n");
 const matrix = lines.map((item) => item.split(""));
 type numCharMatrix = ((number | boolean)[] | "." | number)[][];
 
-// console.log(matrix.join('\n'))
-
 const getAllNumAndSpecCharIndex = (matrix: string[][]): numCharMatrix => {
   return matrix.map((item) => {
     return item.map((elem) => {
@@ -36,14 +34,9 @@ const sorted = getAllNumAndSpecCharIndex(matrix);
 
 const paddedMatrix = padMatrix(sorted);
 
-fs.writeFileSync(
-  path.join(__dirname, "paddedMatrix2.txt"),
-  paddedMatrix.join("\n")
-);
-
 const getAdjacentSpaces = (i: number, j: number) => {
-  let topL = [paddedMatrix[i - 1][j - 1], [i - 1, j - 1], matrix[i - 1][j - 1]];
-  let topC = [paddedMatrix[i - 1][j], [i - 1, j]];
+  let topL = [paddedMatrix[i - 1][j - 1], [i - 1, j - 1]];
+  let topC = [paddedMatrix[i - 1][j], [i - 1, j ]];
   let topR = [paddedMatrix[i - 1][j + 1], [i - 1, j + 1]];
   let left = [paddedMatrix[i][j - 1], [i, j - 1]];
   let right = [paddedMatrix[i][j + 1], [i, j + 1]];
@@ -58,14 +51,19 @@ const getNum = (arr): number[][] => {
   let indexes = [];
   let numIndex = [];
   arr.forEach((elem, index) => {
-    if (elem === 0) numIndex.push(index);
-    else if (elem === 1) {
-      numIndex = [];
-      numIndex.push(index);
-    }
+    // console.log(elem)
+    if (elem === 0) numIndex.push(index - 1);
     if (elem !== 0 && numIndex.length) {
       indexes.push(numIndex);
       numIndex = [];
+      if (elem === 1) {
+        indexes.push([index - 1])
+        numIndex = []
+      }
+    }
+    else if (elem === 1) {
+      // numIndex = [];
+      numIndex.push(index - 1);
     }
   });
   return indexes;
@@ -76,87 +74,104 @@ const getPartNumbers = (matrix: string[][]) => {
 
   const paddedMatrix = padMatrix(sorted);
 
-  let partNums = [];
-  // let numbersIndex = []
-
   let adjNums = [];
   let numIndex = [];
+
   let test = paddedMatrix.forEach((item, index) => {
     numIndex.push(getNum(paddedMatrix[index]));
 
     if (index === 0 || index === paddedMatrix.length - 1) return item;
 
+    // console.log(item)
     item.forEach((elem, elemIndex) => {
       if (elemIndex === 0 || elemIndex === item.length - 1) return item;
-
+      // console.log(elem)
       if (elem === 1) {
+        console.log(index, elemIndex)
         const adjacentSpaces = getAdjacentSpaces(index, elemIndex);
+
         // console.log(adjacentSpaces)
-        const arr: any[][] = Object.values(adjacentSpaces);
+        const arr: any[][] = Object.values(adjacentSpaces).filter(item => item[0] === 0);
         // console.log(arr)
         let count = 0;
-        for (let i = 0; i < arr.length; i++) {
-          // console.log(arr[i + 1])
-          if (arr[i][0] === 0) {
-            if (arr.length === i + 1 || arr[i + 1][0] !== 0) count++;
-          }
+        for (let i = 0; i < arr.length - 1; i++) {
+          let indexArr = arr[i][1]
+          let nextIndexArr = arr[i + 1][i]
+          console.log(indexArr)
+            if (nextIndexArr[1] - indexArr[1] >= 1 ||  nextIndexArr[0] - indexArr[0] >= 1) count++
+            // if (arr.length === i + 1 || arr[i + 1][0] !== 0) count++;
         }
         if (count === 2) {
-          adjNums.push([index, elemIndex]);
+          adjNums.push([index - 1, elemIndex -1]);
         }
       }
     });
   });
 
   // console.log(numIndex)
-  let check = adjNums.map((item) => {
-    const adjSpaces = Object.values(getAdjacentSpaces(item[0], item[1]));
+  console.log(adjNums)
 
-    let test = adjSpaces.map((item) => {
-      let arr = [];
-      const indexes = item[1];
-      // let nums = numIndex[indexes[0]];
-      let nums = numIndex[indexes[0]]
-        .map((elem) => {
-          if (elem.includes(indexes[1]) === true) return elem;
-          return [];
-        })
-        .flat();
-      // console.log(nums)
-      // nums.forEach(num => {
-      //   console.log(num)
-      //   if (arr.indexOf(num) === -1) arr.push(num[0])
-      // })
-      return nums;
-    });
-
-    console.log(test)
-
-    let unique = test.map((item, index) => {
-      console.log(item)
-      if (item.length > 0) {
-        let num = item.map(elem => {
-          console.log(index, elem -1 )
-          return matrix[index][elem - 1]
-        })
-
-        // console.log(num)
-
-        return 0
-      }
-    })
-
-    // console.log(unique)
-  });
-  const ogMatrixNums: string[][] = numIndex.map((item, index) =>
+  const ogMatrixNums: string | number[] | number[][] = numIndex.map((item, index) =>
     {
-      // console.log(index - 1)
+      // console.log(item)
       return item.map((elem) => {
-        // console.log('elem', elem)
-        matrix[index - 1][elem -1]
-      }).join("")
+        // console.log('elem', elem, index - 1)
+        return [elem.map( item => matrix[index - 1][item]).join(''), index - 1, elem]
+        // matrix[index - 1][elem -1]
+      })
     }
   );
+  // console.log(ogMatrixNums)
+  // console.log(adjNums)
+
+  let check = adjNums.map((item, ogIndex) => {
+
+    // item = * index
+
+
+    const test = ogMatrixNums.map((elem, index) => {
+      // elem = number, row index, array of column index
+
+      // console.log(item, elem)
+      if (elem.length > 0) {
+        return elem.map((element, testIndex) => {
+
+          return element[2].map((testNum) => {
+
+            if ( item[0] === element[1] || item[0] === element[1] - 1 || item[0] === element[1] + 1) {
+              // console.log(testNum, item[1])
+              if ( testNum === item[1] || testNum === item[1] + 1 || testNum === item[1] - 1 ){
+                if (element[0] !== '*')
+                  // console.log('duh', index, testIndex)
+                return ogMatrixNums[index][testIndex][0].replace('*', '')
+                }
+                return;
+
+            }
+            return
+          }).filter(item => item !== undefined)
+
+        })
+      }
+    }).filter(item => item !== undefined).flat(2).filter(item => item.length > 0)
+
+
+
+    return test
+  });
+
+  const yes = check.map(item => Array.from(new Set(item)))
+
+  fs.writeFileSync(path.join(__dirname, 'testOut.txt'), yes.join('\n'))
+  // console.log(yes)
+  const nums = yes.map(item => item.map(elem => +elem.replace('*', '')).reduce((total, item) => {
+    return total *= item
+  }))
+
+  // console.log(nums.reduce((total, item) => total += item))
+
+  return nums.reduce((total, item) => total += item)
+
 
   // console.log(ogMatrixNums);
 };
