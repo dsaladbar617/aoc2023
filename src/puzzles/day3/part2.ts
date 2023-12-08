@@ -52,19 +52,20 @@ const getNum = (arr): number[][] => {
   let numIndex = [];
   arr.forEach((elem, index) => {
     // console.log(elem)
-    if (elem === 0) numIndex.push(index - 1);
+    if (elem === 1) {
+      indexes.push(index -1)
+
+    }
+     else if (elem === 0) {
+      // console.log(elem)
+      numIndex.push(index - 1)
+    };
     if (elem !== 0 && numIndex.length) {
+      // console.log(elem)
       indexes.push(numIndex);
       numIndex = [];
-      if (elem === 1) {
-        indexes.push([index - 1])
-        numIndex = []
-      }
     }
-    else if (elem === 1) {
-      // numIndex = [];
-      numIndex.push(index - 1);
-    }
+
   });
   return indexes;
 };
@@ -87,19 +88,42 @@ const getPartNumbers = (matrix: string[][]) => {
       if (elemIndex === 0 || elemIndex === item.length - 1) return item;
       // console.log(elem)
       if (elem === 1) {
-        console.log(index, elemIndex)
+        // console.log(index, elemIndex)
         const adjacentSpaces = getAdjacentSpaces(index, elemIndex);
 
         // console.log(adjacentSpaces)
         const arr: any[][] = Object.values(adjacentSpaces).filter(item => item[0] === 0);
-        // console.log(arr)
+        // console.log(index, elemIndex, arr)
         let count = 0;
-        for (let i = 0; i < arr.length - 1; i++) {
-          let indexArr = arr[i][1]
-          let nextIndexArr = arr[i + 1][i]
-          console.log(indexArr)
-            if (nextIndexArr[1] - indexArr[1] >= 1 ||  nextIndexArr[0] - indexArr[0] >= 1) count++
-            // if (arr.length === i + 1 || arr[i + 1][0] !== 0) count++;
+        // console.log(arr.filter((item, index)=> ))
+
+        let prevIndex = []
+        // console.log(arr)
+        let filtered = arr.filter((item, index)=> {
+          // console.log(item)
+          if (index === 0) return item
+          if (index !== 0) {
+            // if (item[1][0] !== prevIndex[1][0] || prevIndex.length === 0) {
+            //   // console.log(item[0], prevIndex[0], item)
+            //   return item
+            // }
+            // prevIndex = item[1]
+          } else if (arr.length === 2) {
+            // console.log(item[0], prevIndex[0], item)
+            return item
+          }
+          prevIndex = item[1]
+        })
+
+        // console.log('arr', arr)
+        console.log(filtered)
+
+        for (let i = 0; i < filtered.length - 1; i++) {
+          let indexArr = filtered[i][1]
+          let nextIndexArr = filtered[i + 1][1]
+            if (nextIndexArr[1] - indexArr[1] >= 1 ||  nextIndexArr[0] - indexArr[0] >= 1 || indexArr[1] - nextIndexArr[1] >= 1) {
+              count++
+            }
         }
         if (count === 2) {
           adjNums.push([index - 1, elemIndex -1]);
@@ -121,7 +145,7 @@ const getPartNumbers = (matrix: string[][]) => {
       })
     }
   );
-  // console.log(ogMatrixNums)
+  console.log(ogMatrixNums)
   // console.log(adjNums)
 
   let check = adjNums.map((item, ogIndex) => {
@@ -170,7 +194,8 @@ const getPartNumbers = (matrix: string[][]) => {
 
   // console.log(nums.reduce((total, item) => total += item))
 
-  return nums.reduce((total, item) => total += item)
+  return nums
+  // return nums.reduce((total, item) => total += item)
 
 
   // console.log(ogMatrixNums);
